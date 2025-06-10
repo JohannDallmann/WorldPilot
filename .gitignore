@@ -1,0 +1,45 @@
+# Root-Level
+.DS_Store
+*.log
+README.md~
+
+# Backend (Spring Boot) - location-service/
+location-service/target/
+location-service/*.jar
+location-service/*.war
+location-service/.mvn/wrapper/maven-wrapper.jar
+location-service/HELP.md
+location-service/application-local.properties
+location-service/application-dev.properties
+
+# Frontend - worldpilot-webapp/
+worldpilot-webapp/node_modules/
+worldpilot-webapp/dist/
+worldpilot-webapp/build/
+worldpilot-webapp/.env
+worldpilot-webapp/.env.local
+worldpilot-webapp/.env.development.local
+worldpilot-webapp/.env.test.local
+worldpilot-webapp/.env.production.local
+worldpilot-webapp/npm-debug.log*
+worldpilot-webapp/yarn-debug.log*
+worldpilot-webapp/yarn-error.log*
+
+# IDE Files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
