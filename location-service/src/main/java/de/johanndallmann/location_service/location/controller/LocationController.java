@@ -21,8 +21,6 @@ public class LocationController {
     @GetMapping
     public ResponseEntity<List<LocationDto>> getAllLocations() {
         List<Location> locationList = this.locationService.getAllLocations();
-        List<LocationDto> dtolist = this.locationControllerMapper.toDtoList(locationList);
-        System.out.println(dtolist);
         return ResponseEntity.ok(this.locationControllerMapper.toDtoList(locationList));
     }
 }
