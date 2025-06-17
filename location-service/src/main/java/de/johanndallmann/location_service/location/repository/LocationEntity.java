@@ -1,5 +1,6 @@
 package de.johanndallmann.location_service.location.repository;
 
+import de.johanndallmann.location_service.common.enums.LocationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,4 +19,16 @@ public class LocationEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "type")
+    private LocationType type;
+
+    @Column(name = "city", nullable = false)
+    private String city;
+
+    @Column(name = "country", nullable = false)
+    private String country;
+
+    @Column(name = "description")
+    private String description;
 }
