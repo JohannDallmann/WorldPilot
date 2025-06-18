@@ -3,6 +3,10 @@ package de.johanndallmann.location_service.location.repository;
 import de.johanndallmann.location_service.common.mapper.LocationRepositoryMapper;
 import de.johanndallmann.location_service.location.service.Location;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,5 +22,17 @@ public class LocationRepositoryImpl implements LocationRepository{
     public List<Location> getAllLocations() {
         List<LocationEntity> locationEntityList = this.locationJpaRepository.findAll();
         return this.locationRepositoryMapper.toDomainList(locationEntityList);
+    }
+
+    @Override
+    public Page<Location> getLocationPage(Pageable pageable) {
+        Page<LocationEntity> locationEntityPage = this.locationJpaRepository.findAll(
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "id"))
+                )
+        );
+        return locationEntityPage.map(locationRepositoryMapper::toDomain);
     }
 }
