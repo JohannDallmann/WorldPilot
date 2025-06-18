@@ -22,6 +22,9 @@ public class LocationServiceImpl implements LocationService{
         return this.locationRepository.getAllLocations();
     }
 
+    /**
+     * Sets the specification based on the filter-attributes and returns
+     */
     @Override
     public Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable) {
         Specification<LocationEntity> spec = LocationSpecifications.initialSpec()

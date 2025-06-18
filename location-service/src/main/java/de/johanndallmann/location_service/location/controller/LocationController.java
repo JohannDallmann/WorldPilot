@@ -27,6 +27,13 @@ public class LocationController {
         return ResponseEntity.ok(this.locationControllerMapper.toDtoList(locationList));
     }
 
+    /**
+     * Handles Get-request for locations and maps into LocationDto
+     * @param filter contains all filter-attributes
+     * @param pageable contains informations about pagenumber, pagesize and sorting
+     *                 (e.g. "/locations?page=1&size=3&sort=id,desc")
+     * @return page-content of all locations matching the filter-attributes
+     */
     @GetMapping
     public ResponseEntity<List<LocationDto>> getLocationPage(@RequestBody LocationFilterDto filter, Pageable pageable) {
         Page<Location> locationPage = this.locationService.getLocationPage(filter, pageable);
