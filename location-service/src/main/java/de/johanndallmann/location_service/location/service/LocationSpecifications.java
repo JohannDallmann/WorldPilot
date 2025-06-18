@@ -1,5 +1,6 @@
 package de.johanndallmann.location_service.location.service;
 
+import de.johanndallmann.location_service.common.enums.LocationType;
 import de.johanndallmann.location_service.location.repository.LocationEntity;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -22,4 +23,12 @@ public class LocationSpecifications {
                         ? cb.conjunction()
                         : cb.like(cb.lower(root.get("city")), "%" + city.toLowerCase() + "%");
     }
+
+    public static Specification<LocationEntity> hasType(LocationType type) {
+        return (root, query, cb) ->
+                type == null
+                        ? cb.conjunction()
+                        : cb.equal(root.get("type"), type);
+    }
+
 }

@@ -25,8 +25,9 @@ public class LocationServiceImpl implements LocationService{
     @Override
     public Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable) {
         Specification<LocationEntity> spec = LocationSpecifications.initialSpec()
-                        .and(LocationSpecifications.hasCountry(filter.country()))
-                        .and(LocationSpecifications.hasCity(filter.city()));
+                .and(LocationSpecifications.hasCountry(filter.country()))
+                .and(LocationSpecifications.hasCity(filter.city()))
+                .and(LocationSpecifications.hasType(filter.type()));
 
         return this.locationRepository.getLocationPage(spec, pageable);
     }
