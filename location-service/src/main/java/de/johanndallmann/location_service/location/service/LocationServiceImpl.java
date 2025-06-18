@@ -1,9 +1,12 @@
 package de.johanndallmann.location_service.location.service;
 
+import de.johanndallmann.location_service.location.controller.LocationFilterDto;
+import de.johanndallmann.location_service.location.repository.LocationEntity;
 import de.johanndallmann.location_service.location.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +23,11 @@ public class LocationServiceImpl implements LocationService{
     }
 
     @Override
-    public Page<Location> getLocationPage(Pageable pageable) {
-        return this.locationRepository.getLocationPage(pageable);
+    public Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable) {
+        Specification<LocationEntity> spec = LocationSpecifications.initialSpec()
+                        .and(LocationSpecifications.hasCountry(filter.country()))
+                        .and(LocationSpecifications.hasCity(filter.city()));
+
+        return this.locationRepository.getLocationPage(spec, pageable);
     }
 }

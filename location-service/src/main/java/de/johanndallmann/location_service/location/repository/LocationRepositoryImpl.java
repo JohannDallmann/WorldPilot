@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,8 +26,9 @@ public class LocationRepositoryImpl implements LocationRepository{
     }
 
     @Override
-    public Page<Location> getLocationPage(Pageable pageable) {
+    public Page<Location> getLocationPage(Specification<LocationEntity> spec, Pageable pageable) {
         Page<LocationEntity> locationEntityPage = this.locationJpaRepository.findAll(
+                spec,
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),

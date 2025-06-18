@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,8 +28,8 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LocationDto>> getLocationPage(Pageable pageable) {
-        Page<Location> locationPage = this.locationService.getLocationPage(pageable);
+    public ResponseEntity<List<LocationDto>> getLocationPage(@RequestBody LocationFilterDto filter, Pageable pageable) {
+        Page<Location> locationPage = this.locationService.getLocationPage(filter, pageable);
         return ResponseEntity.ok(locationPage.map(locationControllerMapper::toDto).getContent());
     }
 }
