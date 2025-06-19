@@ -1,4 +1,4 @@
-package de.johanndallmann.location_service.location.controller;
+package de.johanndallmann.locationService.location.controller;
 
 public record LocationFilterDto(
         String city,

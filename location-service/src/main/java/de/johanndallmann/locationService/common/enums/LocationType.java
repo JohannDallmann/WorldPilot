@@ -1,4 +1,4 @@
-package de.johanndallmann.location_service.common.enums;
+package de.johanndallmann.locationService.common.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

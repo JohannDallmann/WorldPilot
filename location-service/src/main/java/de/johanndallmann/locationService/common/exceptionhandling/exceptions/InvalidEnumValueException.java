@@ -1,4 +1,4 @@
-package de.johanndallmann.location_service.common.exceptionhandling.exceptions;
+package de.johanndallmann.locationService.common.exceptionhandling.exceptions;
 
 import java.util.Arrays;
 

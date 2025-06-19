@@ -1,7 +1,7 @@
-package de.johanndallmann.location_service.location.repository;
+package de.johanndallmann.locationService.location.repository;
 
-import de.johanndallmann.location_service.common.mapper.LocationRepositoryMapper;
-import de.johanndallmann.location_service.location.service.Location;
+import de.johanndallmann.locationService.common.mapper.LocationRepositoryMapper;
+import de.johanndallmann.locationService.location.service.Location;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

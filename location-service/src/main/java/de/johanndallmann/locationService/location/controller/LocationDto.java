@@ -1,6 +1,6 @@
-package de.johanndallmann.location_service.location.controller;
+package de.johanndallmann.locationService.location.controller;
 
-import de.johanndallmann.location_service.common.enums.LocationType;
+import de.johanndallmann.locationService.common.enums.LocationType;
 
 public record LocationDto(
     long id,

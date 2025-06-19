@@ -1,6 +1,6 @@
-package de.johanndallmann.location_service.location.service;
+package de.johanndallmann.locationService.location.service;
 
-import de.johanndallmann.location_service.location.controller.LocationFilterDto;
+import de.johanndallmann.locationService.location.controller.LocationFilterDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

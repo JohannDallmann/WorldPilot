@@ -1,8 +1,8 @@
-package de.johanndallmann.location_service.location.service;
+package de.johanndallmann.locationService.location.service;
 
-import de.johanndallmann.location_service.common.enums.LocationType;
-import de.johanndallmann.location_service.common.exceptionhandling.exceptions.InvalidEnumValueException;
-import de.johanndallmann.location_service.location.repository.LocationEntity;
+import de.johanndallmann.locationService.common.enums.LocationType;
+import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidEnumValueException;
+import de.johanndallmann.locationService.location.repository.LocationEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 /**

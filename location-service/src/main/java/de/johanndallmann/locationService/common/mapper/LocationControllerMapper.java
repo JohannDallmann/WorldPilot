@@ -1,7 +1,7 @@
-package de.johanndallmann.location_service.common.mapper;
+package de.johanndallmann.locationService.common.mapper;
 
-import de.johanndallmann.location_service.location.controller.LocationDto;
-import de.johanndallmann.location_service.location.service.Location;
+import de.johanndallmann.locationService.location.controller.LocationDto;
+import de.johanndallmann.locationService.location.service.Location;
 import org.mapstruct.Mapper;
 
 import java.util.List;

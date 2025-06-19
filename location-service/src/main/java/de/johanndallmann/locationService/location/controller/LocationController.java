@@ -1,8 +1,8 @@
-package de.johanndallmann.location_service.location.controller;
+package de.johanndallmann.locationService.location.controller;
 
-import de.johanndallmann.location_service.common.mapper.LocationControllerMapper;
-import de.johanndallmann.location_service.location.service.Location;
-import de.johanndallmann.location_service.location.service.LocationService;
+import de.johanndallmann.locationService.common.mapper.LocationControllerMapper;
+import de.johanndallmann.locationService.location.service.Location;
+import de.johanndallmann.locationService.location.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

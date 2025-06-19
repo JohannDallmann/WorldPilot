@@ -1,4 +1,4 @@
-package de.johanndallmann.location_service;
+package de.johanndallmann.locationService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

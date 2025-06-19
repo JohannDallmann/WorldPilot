@@ -1,4 +1,4 @@
-package de.johanndallmann.location_service;
+package de.johanndallmann.locationService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

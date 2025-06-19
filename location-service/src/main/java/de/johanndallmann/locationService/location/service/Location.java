@@ -1,6 +1,6 @@
-package de.johanndallmann.location_service.location.service;
+package de.johanndallmann.locationService.location.service;
 
-import de.johanndallmann.location_service.common.enums.LocationType;
+import de.johanndallmann.locationService.common.enums.LocationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

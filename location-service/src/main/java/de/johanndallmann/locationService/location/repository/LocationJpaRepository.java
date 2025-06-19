@@ -1,4 +1,4 @@
-package de.johanndallmann.location_service.location.repository;
+package de.johanndallmann.locationService.location.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

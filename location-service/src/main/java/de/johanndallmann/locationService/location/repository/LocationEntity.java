@@ -1,8 +1,9 @@
-package de.johanndallmann.location_service.location.repository;
+package de.johanndallmann.locationService.location.repository;
 
-import de.johanndallmann.location_service.common.enums.LocationType;
+import de.johanndallmann.locationService.common.enums.LocationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class LocationEntity {
 
     @Id

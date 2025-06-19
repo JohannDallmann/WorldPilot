@@ -1,6 +1,6 @@
-package de.johanndallmann.location_service.common.exceptionhandling;
+package de.johanndallmann.locationService.common.exceptionhandling;
 
-import de.johanndallmann.location_service.common.exceptionhandling.exceptions.InvalidEnumValueException;
+import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidEnumValueException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
