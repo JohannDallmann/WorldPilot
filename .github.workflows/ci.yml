@@ -1,0 +1,29 @@
+name: CI - Location Service
+
+on:
+  push:
+    paths:
+      - 'location-service/**'
+  pull_request:
+    paths:
+      - 'location-service/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: location-service
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build with Maven
+        run: mvn clean verify
