@@ -62,6 +62,7 @@ public class LocationController {
     @PostMapping
     public ResponseEntity<Void> postNewLocation(@RequestBody NewLocationDto newLocation){
         Location savedLocation = this.locationService.createNewLocation(this.locationControllerMapper.newLocationToDomain(newLocation));
+        System.out.println(savedLocation);
         return responseEntityWithLocation(savedLocation.getId());
     }
 
