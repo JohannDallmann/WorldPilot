@@ -225,7 +225,7 @@ class LocationControllerTest {
     }
 
     @Test
-    void postNewLocation_returnObjectLocation_newLocationPersisted() throws Exception {
+    void postNewLocation_validObject_returnObjectLocation_newLocationPersisted() throws Exception {
         NewLocationDto newLocation = NewLocationDto.builder()
                 .name("NewLocation")
                 .type(LocationType.RESTAURANT)
@@ -247,6 +247,21 @@ class LocationControllerTest {
 
         String locationHeader = result.getResponse().getHeader("Location");
         assertTrue(locationHeader.endsWith("/locations/" + savedLocation.get().getId()));
+    }
+
+    @Test
+    void postNewLocation_invalidObject_return400_newLocationNotPersisted() throws Exception {
+        NewLocationDto newLocation = NewLocationDto.builder()
+                .name("NewLocation")
+                .build();
+
+        mockMvc.perform(post("/locations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsString(newLocation)))
+                .andExpect(status().isBadRequest());
+
+        Optional<LocationEntity> savedLocation = this.locationJpaRepository.findByName(newLocation.name());
+        assertTrue(savedLocation.isEmpty());
     }
 
     private LocationEntity createTestLocationEntity(String name, LocationType type, String city, String country){

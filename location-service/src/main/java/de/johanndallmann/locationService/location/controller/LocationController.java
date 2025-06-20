@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +61,7 @@ public class LocationController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     @PostMapping
-    public ResponseEntity<Void> postNewLocation(@RequestBody NewLocationDto newLocation){
+    public ResponseEntity<Void> postNewLocation(@Valid @RequestBody NewLocationDto newLocation){
         Location savedLocation = this.locationService.createNewLocation(this.locationControllerMapper.newLocationToDomain(newLocation));
         return responseEntityWithLocation(savedLocation.getId());
     }
