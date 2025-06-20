@@ -37,4 +37,10 @@ public class LocationRepositoryImpl implements LocationRepository{
         );
         return locationEntityPage.map(locationRepositoryMapper::toDomain);
     }
+
+    @Override
+    public Location createNewLocation(Location newLocation) {
+        LocationEntity savedEntity = this.locationJpaRepository.save(this.locationRepositoryMapper.toEntity(newLocation));
+        return this.locationRepositoryMapper.toDomain(savedEntity);
+    }
 }

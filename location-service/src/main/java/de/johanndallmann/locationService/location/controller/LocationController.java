@@ -7,11 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -38,5 +37,18 @@ public class LocationController {
     public ResponseEntity<List<LocationDto>> getLocationPage(@RequestBody LocationFilterDto filter, Pageable pageable) {
         Page<Location> locationPage = this.locationService.getLocationPage(filter, pageable);
         return ResponseEntity.ok(locationPage.map(locationControllerMapper::toDto).getContent());
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> postNewLocation(@RequestBody NewLocationDto newLocation){
+        Location savedLocation = this.locationService.createNewLocation(this.locationControllerMapper.newLocationToDomain(newLocation));
+        return responseEntityWithLocation(savedLocation.getId());
+    }
+
+    private ResponseEntity<Void> responseEntityWithLocation(Object resourceId) {
+        URI resourceLocation = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{childId}").buildAndExpand(resourceId)
+                .toUri();
+
+        return ResponseEntity.created(resourceLocation).build();
     }
 }

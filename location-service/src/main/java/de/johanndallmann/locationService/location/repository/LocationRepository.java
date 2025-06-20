@@ -11,4 +11,6 @@ public interface LocationRepository {
     List<Location> getAllLocations();
 
     Page<Location> getLocationPage(Specification<LocationEntity> spec, Pageable pageable);
+
+    Location createNewLocation(Location newLocation);
 }

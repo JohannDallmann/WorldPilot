@@ -12,11 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -219,6 +222,31 @@ class LocationControllerTest {
                 .andExpect(jsonPath("$[2].name").value("Location3"))
                 .andExpect(jsonPath("$[3].name").value("Location2"))
                 .andExpect(jsonPath("$[4].name").value("Location1"));
+    }
+
+    @Test
+    void postNewLocation_returnObjectLocation_newLocationPersisted() throws Exception {
+        NewLocationDto newLocation = NewLocationDto.builder()
+                .name("NewLocation")
+                .type(LocationType.RESTAURANT)
+                .country("Country1")
+                .city("City1")
+                .build();
+
+        MvcResult result = mockMvc.perform(post("/locations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsString(newLocation)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andReturn();
+
+        Optional<LocationEntity> savedLocation = this.locationJpaRepository.findByName(newLocation.name());
+        assertTrue(savedLocation.isPresent());
+        assertEquals(newLocation.city(),savedLocation.get().getCity());
+        assertEquals(newLocation.type(), savedLocation.get().getType());
+
+        String locationHeader = result.getResponse().getHeader("Location");
+        assertTrue(locationHeader.endsWith("/locations/" + savedLocation.get().getId()));
     }
 
     private LocationEntity createTestLocationEntity(String name, LocationType type, String city, String country){

@@ -10,4 +10,6 @@ public interface LocationService {
     List<Location> getAllLocations();
 
     Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable);
+
+    Location createNewLocation(Location newLocation);
 }

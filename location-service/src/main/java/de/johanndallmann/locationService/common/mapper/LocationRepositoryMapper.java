@@ -10,4 +10,6 @@ import java.util.List;
 public interface LocationRepositoryMapper {
     Location toDomain(LocationEntity locationEntity);
     List<Location> toDomainList(List<LocationEntity> locationEntityList);
+
+    LocationEntity toEntity(Location location);
 }

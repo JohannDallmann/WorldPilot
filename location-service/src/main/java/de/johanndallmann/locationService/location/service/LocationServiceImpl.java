@@ -34,4 +34,9 @@ public class LocationServiceImpl implements LocationService{
 
         return this.locationRepository.getLocationPage(spec, pageable);
     }
+
+    @Override
+    public Location createNewLocation(Location newLocation) {
+        return this.locationRepository.createNewLocation(newLocation);
+    }
 }
