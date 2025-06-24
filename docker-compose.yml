@@ -15,53 +15,18 @@ services:
     networks:
       - app-network
 
-#  # Spring Boot Backend
-#  backend:
-#    build:
-#      context: ./backend
-#      dockerfile: Dockerfile
-#    container_name: backend-dev
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/locationdb
-#      - SPRING_DATASOURCE_USERNAME=devuser
-#      - SPRING_DATASOURCE_PASSWORD=devpassword
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - mysql
-#    networks:
-#      - app-network
-#
-#  # Frontend (React/Vue/Angular)
-#  frontend:
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile
-#    container_name: frontend-dev
-#    environment:
-#      - REACT_APP_API_URL=http://localhost:8080
-#    ports:
-#      - "3000:3000"
-#    depends_on:
-#      - backend
-#    networks:
-#      - app-network
-#
-#  # phpMyAdmin für DB-Management
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    container_name: phpmyadmin
-#    environment:
-#      PMA_HOST: mysql
-#      PMA_PORT: 3306
-#      PMA_USER: devuser
-#      PMA_PASSWORD: devpassword
-#    ports:
-#      - "8081:80"
-#    depends_on:
-#      - mysql
-#    networks:
-#      - app-network
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KC_DB: dev-mem
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8090:8080"
+    networks:
+      - app-network
 
 volumes:
   mysql_data:

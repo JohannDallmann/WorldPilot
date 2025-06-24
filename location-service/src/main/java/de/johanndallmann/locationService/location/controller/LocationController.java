@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,6 +28,7 @@ public class LocationController {
     private final LocationService locationService;
     private final LocationControllerMapper locationControllerMapper;
     @GetMapping("/all")
+    @PreAuthorize("hasRole('user')")
     public ResponseEntity<List<LocationDto>> getAllLocations() {
         List<Location> locationList = this.locationService.getAllLocations();
         return ResponseEntity.ok(this.locationControllerMapper.toDtoList(locationList));
@@ -45,6 +47,7 @@ public class LocationController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     @GetMapping
+    @PreAuthorize("hasRole('user')")
     public ResponseEntity<List<LocationDto>> getLocationPage(@RequestBody LocationFilterDto filter, Pageable pageable) {
         Page<Location> locationPage = this.locationService.getLocationPage(filter, pageable);
         return ResponseEntity.ok(locationPage.map(locationControllerMapper::toDto).getContent());
@@ -61,6 +64,7 @@ public class LocationController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     @PostMapping
+    @PreAuthorize("hasRole('user')")
     public ResponseEntity<Void> postNewLocation(@Valid @RequestBody NewLocationDto newLocation){
         Location savedLocation = this.locationService.createNewLocation(this.locationControllerMapper.newLocationToDomain(newLocation));
         return responseEntityWithLocation(savedLocation.getId());
