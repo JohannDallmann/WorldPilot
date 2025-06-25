@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +18,9 @@ public class Location {
     private String city;
     private String country;
     private String description;
+    private UUID creatorId;
+    private UUID ownerId;
+    private Instant createdAt;
+    private Instant updatedAt;
+
 }
