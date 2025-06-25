@@ -7,10 +7,12 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_KEYCLOAK_DATABASE: ${MYSQL_KEYCLOAK_DATABASE}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
     networks:
       - app-network
@@ -20,16 +22,22 @@ services:
     container_name: keycloak
     command: start-dev
     environment:
-      KC_DB: dev-mem
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql-dev:3306/keycloakdb
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     ports:
       - "8090:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
     networks:
       - app-network
 
 volumes:
   mysql_data:
+  keycloak_data:
 
 networks:
   app-network:

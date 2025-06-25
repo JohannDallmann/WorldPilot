@@ -49,6 +49,9 @@ public class SecurityConfig {
         return converter;
     }
 
+    /**
+     * Extracts Authorities from JWT and maps roles for Spring
+     */
     @Bean
     public Converter<Jwt, Collection<GrantedAuthority>> keycloakRoleConverter() {
         return jwt -> {
