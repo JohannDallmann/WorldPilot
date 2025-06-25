@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +27,9 @@ public class LocationServiceImpl implements LocationService{
      * Sets the specification based on the filter-attributes and returns
      */
     @Override
-    public Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable) {
+    public Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable, UUID ownerId) {
         Specification<LocationEntity> spec = LocationSpecifications.initialSpec()
+                .and(LocationSpecifications.hasOwnerId(ownerId))
                 .and(LocationSpecifications.hasCountry(filter.country()))
                 .and(LocationSpecifications.hasCity(filter.city()))
                 .and(LocationSpecifications.hasType(filter.type()));

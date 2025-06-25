@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/locations")
@@ -48,8 +50,8 @@ public class LocationController {
     })
     @GetMapping
     @PreAuthorize("hasRole('user')")
-    public ResponseEntity<List<LocationDto>> getLocationPage(@RequestBody LocationFilterDto filter, Pageable pageable) {
-        Page<Location> locationPage = this.locationService.getLocationPage(filter, pageable);
+    public ResponseEntity<List<LocationDto>> getLocationPage(@RequestBody LocationFilterDto filter, Pageable pageable, Principal principal) {
+        Page<Location> locationPage = this.locationService.getLocationPage(filter, pageable, UUID.fromString(principal.getName()));
         return ResponseEntity.ok(locationPage.map(locationControllerMapper::toDto).getContent());
     }
 

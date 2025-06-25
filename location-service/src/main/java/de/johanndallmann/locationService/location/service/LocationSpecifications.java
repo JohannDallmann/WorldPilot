@@ -5,6 +5,8 @@ import de.johanndallmann.locationService.common.exceptionhandling.exceptions.Inv
 import de.johanndallmann.locationService.location.repository.LocationEntity;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.UUID;
+
 /**
  * The static methods of this class are specifications
  * which are used by the JpaRepository to filter LocationEntities.
@@ -18,6 +20,18 @@ public class LocationSpecifications {
      */
     public static Specification<LocationEntity> initialSpec(){
         return (root, query, cb) -> cb.conjunction();
+    }
+
+    /**
+     * Create Specification for ownerId, for that a user can only see his own locations.
+     * Filter has to be always set.
+     */
+    public static Specification<LocationEntity> hasOwnerId(UUID ownerId) {
+        if (ownerId == null) {
+            throw new IllegalArgumentException("OwnerId must not be null");
+        }
+
+        return (root, query, cb) -> cb.equal(root.get("ownerId"), ownerId);
     }
 
     /**
