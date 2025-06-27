@@ -10,13 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,25 +43,37 @@ class LocationControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private UUID UserId1;
+    private UUID UserId2;
+
     @BeforeEach
     void setup() {
         this.locationJpaRepository.deleteAll();
 
+        this.UserId1 = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d047");
+        this.UserId2 = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d048");
+        Instant createdAt = LocalDateTime.of(2025, Month.JANUARY, 1, 12, 0).atZone(ZoneId.of("UTC")).toInstant();
+
         List<LocationEntity> locationEntityList = List.of(
-                this.createTestLocationEntity("Location1", LocationType.RESTAURANT, "City1", "country1"),
-                this.createTestLocationEntity("Location2", LocationType.BAR, "City1", "country1"),
-                this.createTestLocationEntity("Location3", LocationType.BAR, "City2", "country1"),
-                this.createTestLocationEntity("Location4", LocationType.RESTAURANT, "City3", "country2"),
-                this.createTestLocationEntity("Location5", LocationType.BAR, "City3", "country2")
+                this.createTestLocationEntity("Location1", LocationType.RESTAURANT, "City1", "country1", UserId1, UserId1, createdAt),
+                this.createTestLocationEntity("Location2", LocationType.BAR, "City1", "country1", UserId1, UserId1, createdAt),
+                this.createTestLocationEntity("Location3", LocationType.BAR, "City2", "country1", UserId1, UserId1, createdAt),
+                this.createTestLocationEntity("Location4", LocationType.RESTAURANT, "City3", "country2", UserId1, UserId1, createdAt),
+                this.createTestLocationEntity("Location5", LocationType.BAR, "City3", "country2", UserId1, UserId1, createdAt),
+                this.createTestLocationEntity("Location6", LocationType.RESTAURANT, "City1", "country1", UserId2, UserId2, createdAt),
+                this.createTestLocationEntity("Location7", LocationType.RESTAURANT, "City1", "country1", UserId1, UserId2, createdAt)
         );
 
         this.locationJpaRepository.saveAll(locationEntityList);
     }
 
     @Test
-    void getLocationPage_noFilter_returnAllLocations_unsorted() throws Exception {
+    void getLocationPage_noFilter_returnAllOwnedLocations_unsorted() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -67,10 +84,31 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_filterApplied_returnAllRestaurants() throws Exception {
+    void getLocationPage_noFilter_returnAllOwnedLocations_despiteCreatedByOtherUser_unsorted() throws Exception {
+        LocationFilterDto filter = LocationFilterDto.builder()
+                .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId2.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        mockMvc.perform(get("/locations?page=0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsString(filter)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].name").value("Location6"))
+                .andExpect(jsonPath("$[1].name").value("Location7"));
+    }
+
+    @Test
+    void getLocationPage_filterApplied_returnAllOwnedRestaurants() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .type("RESTAURANT")
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,10 +121,13 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_filterApplied_returnAllBars() throws Exception {
+    void getLocationPage_filterApplied_returnAllOwnedBars() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .type("BAR")
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,10 +141,13 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_filterApplied_returnAllRestaurantsDespiteLowCase() throws Exception {
+    void getLocationPage_filterApplied_returnAllOwnedRestaurantsDespiteLowCase() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .type("restaurant")
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,6 +165,9 @@ class LocationControllerTest {
                 .type("notExistingType")
                 .build();
 
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(filter)))
@@ -130,10 +177,13 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_filterApplied_returnNoLocation() throws Exception {
+    void getLocationPage_filterApplied_returnNoOwnedLocationsMatchingFilter() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .type("NATURE")
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -144,11 +194,14 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_twoFilterApplied_returnAllBarsInCountry1() throws Exception {
+    void getLocationPage_twoFilterApplied_returnAllOwnedBarsInCountry1() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .type("BAR")
                 .country("country1")
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -167,6 +220,9 @@ class LocationControllerTest {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .build();
 
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         mockMvc.perform(get("/locations?page=0&size=3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(filter)))
@@ -180,6 +236,9 @@ class LocationControllerTest {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .build();
 
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         mockMvc.perform(get("/locations?page=1&size=3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(filter)))
@@ -189,9 +248,12 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_noFilter_returnAllLocations_sortedByNameAsc() throws Exception {
+    void getLocationPage_noFilter_returnAllOwnedLocations_sortedByNameAsc() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0&size=5&sort=name,asc")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -207,9 +269,12 @@ class LocationControllerTest {
     }
 
     @Test
-    void getLocationPage_noFilter_returnAllLocations_sortedByNameDsc() throws Exception {
+    void getLocationPage_noFilter_returnAllOwnedLocations_sortedByNameDsc() throws Exception {
         LocationFilterDto filter = LocationFilterDto.builder()
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mockMvc.perform(get("/locations?page=0&size=5&sort=name,desc")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -225,13 +290,16 @@ class LocationControllerTest {
     }
 
     @Test
-    void postNewLocation_validObject_returnObjectLocation_newLocationPersisted() throws Exception {
+    void postNewLocation_validObject_returnObjectLocation_newLocationPersisted_creatorIdAndOwnerIdAndCreationDateAndUpdatedAtSet() throws Exception {
         NewLocationDto newLocation = NewLocationDto.builder()
                 .name("NewLocation")
                 .type(LocationType.RESTAURANT)
                 .country("Country1")
                 .city("City1")
                 .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         MvcResult result = mockMvc.perform(post("/locations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -244,6 +312,10 @@ class LocationControllerTest {
         assertTrue(savedLocation.isPresent());
         assertEquals(newLocation.city(),savedLocation.get().getCity());
         assertEquals(newLocation.type(), savedLocation.get().getType());
+        assertEquals(this.UserId1, savedLocation.get().getCreatorId());
+        assertEquals(this.UserId1, savedLocation.get().getOwnerId());
+        assertNotNull(savedLocation.get().getCreatedAt());
+        assertNotNull(savedLocation.get().getUpdatedAt());
 
         String locationHeader = result.getResponse().getHeader("Location");
         assertTrue(locationHeader.endsWith("/locations/" + savedLocation.get().getId()));
@@ -255,6 +327,9 @@ class LocationControllerTest {
                 .name("NewLocation")
                 .build();
 
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         mockMvc.perform(post("/locations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(newLocation)))
@@ -264,13 +339,16 @@ class LocationControllerTest {
         assertTrue(savedLocation.isEmpty());
     }
 
-    private LocationEntity createTestLocationEntity(String name, LocationType type, String city, String country){
-        LocationEntity entity = LocationEntity.builder()
+    private LocationEntity createTestLocationEntity(String name, LocationType type, String city, String country, UUID creatorId, UUID ownerId, Instant createdAt){
+        return LocationEntity.builder()
                 .name(name)
                 .type(type)
                 .city(city)
                 .country(country)
+                .creatorId(creatorId)
+                .ownerId(ownerId)
+                .createdAt(createdAt)
+                .updatedAt(createdAt)
                 .build();
-        return entity;
     }
 }
