@@ -13,4 +13,6 @@ public interface LocationService {
     Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable, UUID ownerId);
 
     Location createNewLocation(Location newLocation);
+
+    List<Location> transferLocationsToOtherUser(LocationFilterDto filter, UUID currentOwnerId, UUID newOwnerId);
 }

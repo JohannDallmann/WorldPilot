@@ -53,6 +53,13 @@ public class LocationSpecifications {
                         : cb.like(cb.lower(root.get("city")), "%" + city.toLowerCase() + "%");
     }
 
+    public static Specification<LocationEntity> hasLocationId(Long locationId) {
+        return (root, query, cb) ->
+                (locationId == null)
+                        ? cb.conjunction()
+                        : cb.equal(root.get("id"), locationId);
+    }
+
     /**
      * Filter for provided String with the type-attribute.
      * @param typeStr String-value of the enum LocationType (e.g. "RESTAURANT, "BAR")

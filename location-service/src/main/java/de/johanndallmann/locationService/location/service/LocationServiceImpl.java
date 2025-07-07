@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,12 +25,13 @@ public class LocationServiceImpl implements LocationService{
     }
 
     /**
-     * Sets the specification based on the filter-attributes and returns
+     * Sets the specification based on the filter-attributes and returns a page of Locations
      */
     @Override
     public Page<Location> getLocationPage(LocationFilterDto filter, Pageable pageable, UUID ownerId) {
         Specification<LocationEntity> spec = LocationSpecifications.initialSpec()
                 .and(LocationSpecifications.hasOwnerId(ownerId))
+                .and(LocationSpecifications.hasLocationId(filter.locationId()))
                 .and(LocationSpecifications.hasCountry(filter.country()))
                 .and(LocationSpecifications.hasCity(filter.city()))
                 .and(LocationSpecifications.hasType(filter.type()));
@@ -40,5 +42,28 @@ public class LocationServiceImpl implements LocationService{
     @Override
     public Location createNewLocation(Location newLocation) {
         return this.locationRepository.createNewLocation(newLocation);
+    }
+
+    @Override
+    public List<Location> transferLocationsToOtherUser(LocationFilterDto filter, UUID currentOwnerId, UUID newOwnerId) {
+        Page<Location> locationPage = this.getLocationPage(filter, Pageable.unpaged(), currentOwnerId); // TODO: at least one correct filter needs to be applied to avoid that all locations are shared
+
+        List<Location> duplicatedLocationsList = new ArrayList<>();
+
+        locationPage.getContent().forEach(locationToCopy -> {
+            // TODO: check if location was already copied
+            Location locationDuplicate = Location.builder()
+                    .name(locationToCopy.getName())
+                    .type(locationToCopy.getType())
+                    .city(locationToCopy.getCity())
+                    .country(locationToCopy.getCountry())
+                    .description(locationToCopy.getDescription())
+                    .creatorId(locationToCopy.getCreatorId())
+                    .ownerId(newOwnerId)
+                    .createdAt(locationToCopy.getCreatedAt())
+                    .build();
+            duplicatedLocationsList.add(this.locationRepository.duplicateLocation(locationDuplicate));
+        });
+        return duplicatedLocationsList;
     }
 }

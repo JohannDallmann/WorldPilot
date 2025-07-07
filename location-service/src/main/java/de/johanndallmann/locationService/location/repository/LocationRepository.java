@@ -13,4 +13,6 @@ public interface LocationRepository {
     Page<Location> getLocationPage(Specification<LocationEntity> spec, Pageable pageable);
 
     Location createNewLocation(Location newLocation);
+
+    Location duplicateLocation(Location locationToDuplicate);
 }

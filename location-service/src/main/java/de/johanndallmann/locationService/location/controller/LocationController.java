@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +71,24 @@ public class LocationController {
     public ResponseEntity<Void> postNewLocation(@Valid @RequestBody NewLocationDto newLocation){
         Location savedLocation = this.locationService.createNewLocation(this.locationControllerMapper.newLocationToDomain(newLocation));
         return responseEntityWithLocation(savedLocation.getId());
+    }
+
+    @Operation(
+            summary = "Transfers specified locations to another user",
+            description = "Expects a TransferLocationDto as RequestBody which consists out of the ID of the new user " +
+                    "the locations are transferred to and filter attributes to specify the locations (see LocationFilterDto). " +
+                    "The specified locations are duplicated and a list of the created locations is returned."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Locations successfully duplicated"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PostMapping("/transfer")
+    @PreAuthorize("hasRole('user')")
+    public ResponseEntity<List<LocationDto>> transferLocationsToOtherUser(@RequestBody TransferLocationDto transferParams, Principal principal){
+        LocationFilterDto filter = this.locationControllerMapper.transferLocationDtoToLocationFilterDto(transferParams);
+        List<Location> duplicatedLocationsList = this.locationService.transferLocationsToOtherUser(filter, UUID.fromString(principal.getName()), UUID.fromString(transferParams.newOwnerId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.locationControllerMapper.toDtoList(duplicatedLocationsList));
     }
 
     /**

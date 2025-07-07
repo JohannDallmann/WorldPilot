@@ -2,6 +2,7 @@ package de.johanndallmann.locationService.location.service;
 
 import de.johanndallmann.locationService.common.enums.LocationType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Location {
     private long id;
     private String name;
