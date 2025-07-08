@@ -2,8 +2,8 @@ package de.johanndallmann.locationService.location.service;
 
 import de.johanndallmann.locationService.common.enums.LocationType;
 import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidFilterException;
+import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidUserException;
 import de.johanndallmann.locationService.location.controller.LocationFilterDto;
-import de.johanndallmann.locationService.location.repository.LocationEntity;
 import de.johanndallmann.locationService.location.repository.LocationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,12 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,13 +61,23 @@ class LocationServiceImplTest {
     }
 
     @Test
-    void transferLocationToOtherUser_noFilterSet_throwsException(){
+    void transferLocationToOtherUser_noFilterSet_throwsInvalidFilterException(){
         UUID oldOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d047");
         UUID newOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d048");
 
         LocationFilterDto filter = LocationFilterDto.builder().build();
 
         assertThrows(InvalidFilterException.class, () -> this.locationService.transferLocationsToOtherUser(filter, oldOwnerId, newOwnerId));
+    }
+
+    @Test
+    void transferLocationToOtherUser_sameUserAsBefore_throwsInvalidUserException(){
+        UUID oldOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d047");
+
+        LocationFilterDto filter = LocationFilterDto.builder()
+                .locationId(1L).build();
+
+        assertThrows(InvalidUserException.class, () -> this.locationService.transferLocationsToOtherUser(filter, oldOwnerId, oldOwnerId));
     }
 
     private Location createTestLocation(String name, LocationType type, String city, String country, UUID creatorId, UUID ownerId, Instant createdAt, Instant updatedAt) {
