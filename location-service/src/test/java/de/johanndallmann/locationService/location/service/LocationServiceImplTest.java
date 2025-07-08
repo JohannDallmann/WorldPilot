@@ -1,6 +1,7 @@
 package de.johanndallmann.locationService.location.service;
 
 import de.johanndallmann.locationService.common.enums.LocationType;
+import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidFilterException;
 import de.johanndallmann.locationService.location.controller.LocationFilterDto;
 import de.johanndallmann.locationService.location.repository.LocationEntity;
 import de.johanndallmann.locationService.location.repository.LocationRepository;
@@ -21,8 +22,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,6 +62,16 @@ class LocationServiceImplTest {
 
         verify(this.locationRepository, times(1)).getLocationPage(any(),eq(Pageable.unpaged()));
         verify(this.locationRepository, times(1)).duplicateLocation(duplicatedBeforeSave);
+    }
+
+    @Test
+    void transferLocationToOtherUser_noFilterSet_throwsException(){
+        UUID oldOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d047");
+        UUID newOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d048");
+
+        LocationFilterDto filter = LocationFilterDto.builder().build();
+
+        assertThrows(InvalidFilterException.class, () -> this.locationService.transferLocationsToOtherUser(filter, oldOwnerId, newOwnerId));
     }
 
     private Location createTestLocation(String name, LocationType type, String city, String country, UUID creatorId, UUID ownerId, Instant createdAt, Instant updatedAt) {

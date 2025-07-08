@@ -1,20 +1,23 @@
 package de.johanndallmann.locationService.common.exceptionhandling;
 
 import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidEnumValueException;
+import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidFilterException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidEnumValueException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidEnumValue(InvalidEnumValueException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
+    @ExceptionHandler({InvalidEnumValueException.class, InvalidFilterException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidValues(RuntimeException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                "INVALID_INPUT",
+                Instant.now()
+        );
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }

@@ -172,7 +172,7 @@ class LocationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(filter)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(
+                .andExpect(jsonPath("$.message").value(
                         "Invalid value 'notExistingType' for field 'type'. Allowed values: [BAR, RESTAURANT, NATURE, OTHER]"));
     }
 

@@ -1,5 +1,6 @@
 package de.johanndallmann.locationService.location.service;
 
+import de.johanndallmann.locationService.common.exceptionhandling.exceptions.InvalidFilterException;
 import de.johanndallmann.locationService.location.controller.LocationFilterDto;
 import de.johanndallmann.locationService.location.repository.LocationEntity;
 import de.johanndallmann.locationService.location.repository.LocationRepository;
@@ -46,7 +47,8 @@ public class LocationServiceImpl implements LocationService{
 
     @Override
     public List<Location> transferLocationsToOtherUser(LocationFilterDto filter, UUID currentOwnerId, UUID newOwnerId) {
-        Page<Location> locationPage = this.getLocationPage(filter, Pageable.unpaged(), currentOwnerId); // TODO: at least one correct filter needs to be applied to avoid that all locations are shared
+        this.checkForAtLeastOneValidFilterApplied(filter);
+        Page<Location> locationPage = this.getLocationPage(filter, Pageable.unpaged(), currentOwnerId);
 
         List<Location> duplicatedLocationsList = new ArrayList<>();
 
@@ -65,5 +67,11 @@ public class LocationServiceImpl implements LocationService{
             duplicatedLocationsList.add(this.locationRepository.duplicateLocation(locationDuplicate));
         });
         return duplicatedLocationsList;
+    }
+
+    private void checkForAtLeastOneValidFilterApplied(LocationFilterDto filter){
+        if (filter.locationId() == null && filter.city() == null && filter.country() == null && filter.type() == null){
+            throw new InvalidFilterException("No filter discovered: At least one valid filter needs to be applied for locationtransfer.");
+        }
     }
 }
