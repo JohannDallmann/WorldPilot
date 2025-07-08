@@ -61,6 +61,47 @@ class LocationServiceImplTest {
     }
 
     @Test
+    void transferLocationToOtherUser_withCityFilter_duplicatesAndReturnsListWithTwoLocations() {
+        UUID oldOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d047");
+        UUID newOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d048");
+        Instant createdAt = Instant.parse("2025-01-01T12:00:00Z");
+        Instant updatedAt = Instant.parse("2025-01-02T12:00:00Z");
+        String cityToFilter = "City1";
+
+        Location originalLocation1 = this.createTestLocation("Location1", LocationType.RESTAURANT, cityToFilter, "country1", oldOwnerId, oldOwnerId, createdAt, createdAt);
+        Location duplicatedBeforeSave1 = originalLocation1.toBuilder()
+                .ownerId(newOwnerId).updatedAt(null).build();
+        Location expectedSavedDuplicate1 = originalLocation1.toBuilder()
+                .ownerId(newOwnerId).updatedAt(updatedAt).build();
+
+        Location originalLocation2 = originalLocation1.toBuilder()
+                .name("Location2").build();
+        Location duplicatedBeforeSave2 = originalLocation2.toBuilder()
+                .ownerId(newOwnerId).updatedAt(null).build();
+        Location expectedSavedDuplicate2 = originalLocation2.toBuilder()
+                .ownerId(newOwnerId).updatedAt(updatedAt).build();
+
+        LocationFilterDto filter = LocationFilterDto.builder()
+                .city(cityToFilter)
+                .build();
+
+        Page<Location> locationPage = new PageImpl<>(List.of(originalLocation1, originalLocation2));
+        when(this.locationRepository.getLocationPage(any(), eq(Pageable.unpaged()))).thenReturn(locationPage);
+        when(this.locationRepository.duplicateLocation(duplicatedBeforeSave1)).thenReturn(expectedSavedDuplicate1);
+        when(this.locationRepository.duplicateLocation(duplicatedBeforeSave2)).thenReturn(expectedSavedDuplicate2);
+
+        List<Location> result = this.locationService.transferLocationsToOtherUser(filter, oldOwnerId, newOwnerId);
+
+        assertEquals(2, result.size());
+        this.assertLocationEquals(expectedSavedDuplicate1, result.get(0));
+        this.assertLocationEquals(expectedSavedDuplicate2, result.get(1));
+
+        verify(this.locationRepository, times(1)).getLocationPage(any(),eq(Pageable.unpaged()));
+        verify(this.locationRepository, times(1)).duplicateLocation(duplicatedBeforeSave1);
+        verify(this.locationRepository, times(1)).duplicateLocation(duplicatedBeforeSave2);
+    }
+
+    @Test
     void transferLocationToOtherUser_noFilterSet_throwsInvalidFilterException(){
         UUID oldOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d047");
         UUID newOwnerId = UUID.fromString("a6b424e1-b86d-418d-a0f7-f0666920d048");
