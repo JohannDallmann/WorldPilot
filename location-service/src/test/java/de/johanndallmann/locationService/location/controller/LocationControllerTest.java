@@ -341,10 +341,6 @@ class LocationControllerTest {
 
     @Test
     void transferLocationsToOtherUser_withLocationIdFilter_return201andListWithOneLocation_locationCopiedWithNewOwnerId() throws Exception {
-        System.out.println("All locations in DB:");
-        this.locationJpaRepository.findAll()
-                .forEach(l -> System.out.println(l.getId() + " - " + l.getName()));
-
         // get ID from repo by name to avoid DirtiesContext (otherwise IDs are unpredictable)
         Long locationId = this.locationJpaRepository.findByName("Location1").get(0).getId();
 
