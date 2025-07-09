@@ -308,17 +308,17 @@ class LocationControllerTest {
                 .andExpect(header().exists("Location"))
                 .andReturn();
 
-        Optional<LocationEntity> savedLocation = this.locationJpaRepository.findByName(newLocation.name());
-        assertTrue(savedLocation.isPresent());
-        assertEquals(newLocation.city(),savedLocation.get().getCity());
-        assertEquals(newLocation.type(), savedLocation.get().getType());
-        assertEquals(this.UserId1, savedLocation.get().getCreatorId());
-        assertEquals(this.UserId1, savedLocation.get().getOwnerId());
-        assertNotNull(savedLocation.get().getCreatedAt());
-        assertNotNull(savedLocation.get().getUpdatedAt());
+        List<LocationEntity> savedLocations = this.locationJpaRepository.findByName(newLocation.name());
+        assertEquals(1, savedLocations.size());
+        assertEquals(newLocation.city(),savedLocations.get(0).getCity());
+        assertEquals(newLocation.type(), savedLocations.get(0).getType());
+        assertEquals(this.UserId1, savedLocations.get(0).getCreatorId());
+        assertEquals(this.UserId1, savedLocations.get(0).getOwnerId());
+        assertNotNull(savedLocations.get(0).getCreatedAt());
+        assertNotNull(savedLocations.get(0).getUpdatedAt());
 
         String locationHeader = result.getResponse().getHeader("Location");
-        assertTrue(locationHeader.endsWith("/locations/" + savedLocation.get().getId()));
+        assertTrue(locationHeader.endsWith("/locations/" + savedLocations.get(0).getId()));
     }
 
     @Test
@@ -335,8 +335,42 @@ class LocationControllerTest {
                         .content(this.objectMapper.writeValueAsString(newLocation)))
                 .andExpect(status().isBadRequest());
 
-        Optional<LocationEntity> savedLocation = this.locationJpaRepository.findByName(newLocation.name());
-        assertTrue(savedLocation.isEmpty());
+        List<LocationEntity> savedLocations = this.locationJpaRepository.findByName(newLocation.name());
+        assertTrue(savedLocations.isEmpty());
+    }
+
+    @Test
+    void transferLocationsToOtherUser_withLocationIdFilter_return201andListWithOneLocation_locationCopiedWithNewOwnerId() throws Exception {
+        System.out.println("All locations in DB:");
+        this.locationJpaRepository.findAll()
+                .forEach(l -> System.out.println(l.getId() + " - " + l.getName()));
+
+        // get ID from repo by name to avoid DirtiesContext (otherwise IDs are unpredictable)
+        Long locationId = this.locationJpaRepository.findByName("Location1").get(0).getId();
+
+        TransferLocationDto transferLocationDto = TransferLocationDto.builder()
+                .newOwnerId(this.UserId2.toString())
+                .locationId(locationId)
+                .build();
+
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(this.UserId1.toString(), null, "ROLE_user");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        mockMvc.perform(post("/locations/transfer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsString(transferLocationDto)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name").value("Location1"));
+
+        List<LocationEntity> savedLocations = this.locationJpaRepository.findByName("Location1");
+
+        assertEquals(2, savedLocations.size());
+        assertEquals(this.UserId1, savedLocations.get(0).getCreatorId());
+        assertEquals(this.UserId1, savedLocations.get(0).getOwnerId());
+        assertEquals(this.UserId1, savedLocations.get(1).getCreatorId());
+        assertEquals(this.UserId2, savedLocations.get(1).getOwnerId());
     }
 
     private LocationEntity createTestLocationEntity(String name, LocationType type, String city, String country, UUID creatorId, UUID ownerId, Instant createdAt){
