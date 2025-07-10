@@ -25,7 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/locations")
 @RequiredArgsConstructor
-@Tag(name = "Locations", description = "API for Location-operationes")
+@Tag(name = "Locations", description = "API for Location-operations")
 public class LocationController {
 
     private final LocationService locationService;

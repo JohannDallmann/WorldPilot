@@ -12,6 +12,9 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Format response for specified exception-classes
+     */
     @ExceptionHandler({InvalidEnumValueException.class, InvalidFilterException.class, InvalidUserException.class})
     public ResponseEntity<ErrorResponse> handleInvalidValues(RuntimeException ex) {
         ErrorResponse errorResponse = new ErrorResponse(

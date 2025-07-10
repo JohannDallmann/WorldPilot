@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * enables Authorization with Bearer Token for requests with swagger
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
